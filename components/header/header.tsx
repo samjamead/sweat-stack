@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import GithubMark from "@/public/github-mark.svg";
 import GithubMarkWhite from "@/public/github-mark-white.svg";
+import Link from "next/link";
 
 export default function Header({
   maxWidth,
@@ -11,15 +12,17 @@ export default function Header({
   bodyGutter?: string;
 }) {
   return (
-    <header className={cn("w-full border-b py-12", bodyGutter)}>
+    <header className={cn("w-full border-b py-4", bodyGutter)}>
       <nav
         className={cn(
-          "mx-auto flex flex-col items-start justify-between gap-2 lg:flex-row lg:gap-4",
+          "mx-auto flex flex-col items-center justify-between gap-2 lg:flex-row lg:gap-4",
           maxWidth,
         )}
       >
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-bold">Strava Kitty</h1>
+          <Link href="/">
+            <h1 className="text-lg font-bold">Strava Kitty</h1>
+          </Link>
         </div>
 
         <a

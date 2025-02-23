@@ -17,18 +17,23 @@ export default async function Footer({
       <div className={cn("mx-auto w-full", maxWidth)}>
         <div className="flex flex-col gap-4 text-sm">
           <p>Made with ❤️ in the Channel Islands</p>
-          <p>
-            Last updated by commit{" "}
-            <a
-              href={`https://github.com/samjamead/strava-kitty/commits/main/${repoData.sha}`}
-              target="_blank"
-              className="rounded-t border-b-2 border-transparent bg-yellow-500/10 px-1 py-0.5 font-semibold text-numbers transition-all duration-300 hover:border-numbers"
-            >
-              {repoData.sha.slice(0, 7)}
-            </a>{" "}
-            on{" "}
-            {format(new Date(repoData.commit.author.date), "EEEE d MMMM, yyyy")}
-          </p>
+          {repoData && (
+            <p>
+              Last updated by commit{" "}
+              <a
+                href={`https://github.com/samjamead/strava-kitty/commits/main/${repoData.sha}`}
+                target="_blank"
+                className="rounded-t border-b-2 border-transparent bg-yellow-500/10 px-1 py-0.5 font-semibold text-numbers transition-all duration-300 hover:border-numbers"
+              >
+                {repoData.sha.slice(0, 7)}
+              </a>{" "}
+              on{" "}
+              {format(
+                new Date(repoData.commit.author.date),
+                "EEEE d MMMM, yyyy",
+              )}
+            </p>
+          )}
         </div>
       </div>
     </footer>
