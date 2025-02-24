@@ -37,22 +37,27 @@ export async function GET() {
     const activities: StravaActivity[] = await response.json();
 
     // Process activities to return only relevant data
-    const processedActivities = activities.map((activity) => ({
-      id: activity.id,
-      name: activity.name,
-      type: activity.type,
-      distance: activity.distance,
-      moving_time: activity.moving_time,
-      elapsed_time: activity.elapsed_time,
-      total_elevation_gain: activity.total_elevation_gain,
-      start_date: activity.start_date,
-      start_date_local: activity.start_date_local,
-      average_speed: activity.average_speed,
-      max_speed: activity.max_speed,
-      average_heartrate: activity.average_heartrate,
-      max_heartrate: activity.max_heartrate,
-      map: activity.map,
-    }));
+    const processedActivities = activities
+      .map((activity) => ({
+        id: activity.id,
+        name: activity.name,
+        type: activity.type,
+        distance: activity.distance,
+        moving_time: activity.moving_time,
+        elapsed_time: activity.elapsed_time,
+        total_elevation_gain: activity.total_elevation_gain,
+        start_date: activity.start_date,
+        start_date_local: activity.start_date_local,
+        average_speed: activity.average_speed,
+        max_speed: activity.max_speed,
+        average_heartrate: activity.average_heartrate,
+        max_heartrate: activity.max_heartrate,
+        map: activity.map,
+      }))
+      .sort(
+        (a, b) =>
+          new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
+      );
 
     return NextResponse.json(processedActivities);
   } catch (error) {

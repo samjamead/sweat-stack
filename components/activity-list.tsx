@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { StravaActivity } from "@/app/types/strava";
-import { ActivityMap } from "./ActivityMap";
 
 function formatDistance(meters: number): string {
   const kilometers = meters / 1000;
@@ -23,46 +22,45 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export function ActivityList() {
-  const [activities, setActivities] = useState<StravaActivity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchActivities() {
-      try {
-        const response = await fetch("/api/strava/activities");
-        if (!response.ok) {
-          throw new Error("Failed to fetch activities");
-        }
-        const data = await response.json();
-        setActivities(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load activities",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchActivities();
-  }, []);
-
-  if (loading) {
-    return <div className="text-center">Loading activities...</div>;
+async function fetchActivities(): Promise<StravaActivity[]> {
+  const response = await fetch("/api/strava/activities");
+  if (!response.ok) {
+    throw new Error("Failed to fetch activities");
   }
+  return response.json();
+}
 
-  if (error) {
+export function ActivityList() {
+  const {
+    data: activities,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["activities"],
+    queryFn: fetchActivities,
+  });
+
+  if (isLoading) {
     return (
-      <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
-        <p className="font-medium">Error</p>
-        <p>{error}</p>
+      <div className="flex items-center justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-orange-500" />
       </div>
     );
   }
 
-  if (activities.length === 0) {
+  if (isError) {
+    return (
+      <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
+        <p className="font-medium">Error</p>
+        <p>
+          {error instanceof Error ? error.message : "Failed to load activities"}
+        </p>
+      </div>
+    );
+  }
+
+  if (!activities || activities.length === 0) {
     return (
       <div className="text-center text-gray-500">
         No activities found in the last 6 weeks
@@ -75,14 +73,8 @@ export function ActivityList() {
       {activities.map((activity) => (
         <div
           key={activity.id}
-          className="overflow-hidden rounded-lg border border-gray-200 shadow-sm"
+          className="overflow-hidden rounded-lg border shadow-sm"
         >
-          {activity.map?.summary_polyline && (
-            <ActivityMap
-              polyline={activity.map.summary_polyline}
-              className="border-b border-gray-200"
-            />
-          )}
           <div className="p-4">
             <div className="flex items-start justify-between">
               <div>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer/footer";
 import { cn } from "@/lib/utils";
+import QueryProvider from "@/components/query-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,9 +19,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Next 15 Starter Repo",
+  title: "Sweat Stack",
   description:
-    "Opinionated starter repo for Next.js 15, with TypeScript, Tailwind and ShadCN",
+    "Sweat Stack is a tool for tracking your Strava activities and visualising your progress over time.",
 };
 
 const appWidth = "max-w-lg md:max-w-xl lg:max-w-4xl";
@@ -36,15 +37,17 @@ export default function RootLayout({
       <body
         className={cn(geistSans.variable, geistMono.variable, "antialiased")}
       >
-        <div className="flex min-h-svh flex-col justify-between gap-4">
-          <div className="flex flex-col gap-4">
-            <Header maxWidth={appWidth} bodyGutter={bodyGutter} />
-            <div className={cn(bodyGutter)}>
-              <div className={cn("mx-auto w-full", appWidth)}>{children}</div>
+        <QueryProvider>
+          <div className="flex min-h-svh flex-col justify-between gap-4">
+            <div className="flex flex-col gap-4">
+              <Header maxWidth={appWidth} bodyGutter={bodyGutter} />
+              <div className={cn(bodyGutter)}>
+                <div className={cn("mx-auto w-full", appWidth)}>{children}</div>
+              </div>
             </div>
+            <Footer maxWidth={appWidth} bodyGutter={bodyGutter} />
           </div>
-          <Footer maxWidth={appWidth} bodyGutter={bodyGutter} />
-        </div>
+        </QueryProvider>
 
         <Toaster />
       </body>

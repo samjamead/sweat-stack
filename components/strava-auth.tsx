@@ -66,9 +66,12 @@ export function StravaAuth({ clientId }: StravaAuthProps) {
           Connect with Strava
         </Button>
       ) : (
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-green-600">✓ Connected to Strava</p>
+        <div className="flex items-center justify-start gap-4 text-sm">
+          <p className="text-green-400 dark:text-green-600">
+            ✓ Connected to Strava
+          </p>
           <Button
+            size="sm"
             onClick={async () => {
               try {
                 await fetch("/api/strava/logout", { method: "POST" });
