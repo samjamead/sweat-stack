@@ -7,6 +7,7 @@ import {
   endOfISOWeek,
   isWithinInterval,
   getISOWeek,
+  differenceInDays,
 } from "date-fns";
 
 async function fetchActivities(): Promise<StravaActivity[]> {
@@ -21,18 +22,16 @@ interface WeekSummary {
   weekStart: Date;
   activities: StravaActivity[];
   totalActivities: number;
+  dailyActivities: StravaActivity[][];
 }
 
 function getWeekSummaries(activities: StravaActivity[]): WeekSummary[] {
-  const weeks: WeekSummary[] = [];
-  let currentDate = new Date();
+  const currentDate = new Date();
+  const currentWeekStart = startOfISOWeek(currentDate);
 
-  // Get the start of the current ISO week
-  currentDate = startOfISOWeek(currentDate);
-
-  // Generate the last 6 weeks including current week
-  for (let i = 0; i < 6; i++) {
-    const weekStart = new Date(currentDate);
+  // Generate the last 6 weeks including current week using functional approach
+  const weeks = Array.from({ length: 6 }, (_, i) => {
+    const weekStart = new Date(currentWeekStart);
     weekStart.setDate(weekStart.getDate() - i * 7);
     const weekEnd = endOfISOWeek(weekStart);
 
@@ -41,12 +40,28 @@ function getWeekSummaries(activities: StravaActivity[]): WeekSummary[] {
       return isWithinInterval(activityDate, { start: weekStart, end: weekEnd });
     });
 
-    weeks.push({
+    // Initialize array of 7 empty arrays (one for each day of the week)
+    const dailyActivities: StravaActivity[][] = Array.from(
+      { length: 7 },
+      () => [],
+    );
+
+    // Single-pass distribution of activities to appropriate days
+    weekActivities.forEach((activity) => {
+      const activityDate = new Date(activity.start_date);
+      const dayIndex = differenceInDays(activityDate, weekStart);
+      if (dayIndex >= 0 && dayIndex < 7) {
+        dailyActivities[dayIndex].push(activity);
+      }
+    });
+
+    return {
       weekStart,
       activities: weekActivities,
       totalActivities: weekActivities.length,
-    });
-  }
+      dailyActivities,
+    };
+  });
 
   // Sort weeks in reverse chronological order (most recent first)
   return weeks.sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime());
@@ -54,23 +69,18 @@ function getWeekSummaries(activities: StravaActivity[]): WeekSummary[] {
 
 function ActivitySquare({ count }: { count: number }) {
   if (count === 0) {
-    return <div className="h-4 w-4 rounded bg-gray-300" />;
+    return <div className="h-5 w-5 rounded bg-gray-300" />;
   }
 
   if (count === 1) {
-    return <div className="h-4 w-4 rounded bg-green-500" />;
+    return <div className="h-5 w-5 rounded bg-green-500" />;
   }
 
   // For multiple activities, split the square horizontally
   return (
-    <div className="relative h-4 w-4 overflow-hidden rounded">
-      <div className="absolute inset-x-0 top-0 h-1/2 bg-green-500" />
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-green-600" />
-      {count > 2 && (
-        <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white">
-          {count}
-        </span>
-      )}
+    <div className="flex h-5 w-5 flex-col gap-0.5 overflow-hidden rounded">
+      <div className="h-1/2 w-full rounded bg-green-500" />
+      <div className="h-1/2 w-full rounded bg-green-600" />
     </div>
   );
 }
@@ -131,17 +141,9 @@ export function ActivitySummary() {
           </p>
 
           <div className="flex space-x-1">
-            {Array.from({ length: 7 }).map((_, dayIndex) => {
-              // Count activities for this day
-              const dayActivities = week.activities.filter((activity) => {
-                const activityDate = new Date(activity.start_date);
-                return activityDate.getDay() === dayIndex;
-              });
-
-              return (
-                <ActivitySquare key={dayIndex} count={dayActivities.length} />
-              );
-            })}
+            {week.dailyActivities.map((dayActivities, dayIndex) => (
+              <ActivitySquare key={dayIndex} count={dayActivities.length} />
+            ))}
           </div>
           <div className="flex flex-1 items-center justify-end space-x-3 text-right">
             {week.totalActivities >= 3 ? (

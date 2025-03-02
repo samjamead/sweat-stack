@@ -12,7 +12,7 @@ export default async function Footer({
   bodyGutter?: string;
 }) {
   const data = await fetch(
-    "https://api.github.com/repos/samjamead/strava-kitty/commits/main",
+    "https://api.github.com/repos/samjamead/sweat-stack/commits/main",
   );
   const repoData = await data.json();
 
@@ -30,7 +30,7 @@ export default async function Footer({
             <p>
               Last updated by commit{" "}
               <a
-                href={`https://github.com/samjamead/strava-kitty/commits/main/${repoData.sha}`}
+                href={`https://github.com/samjamead/sweat-stack/commits/main/${repoData.sha}`}
                 target="_blank"
                 className="rounded-t border-b-2 border-transparent bg-yellow-500/10 px-1 py-0.5 font-semibold text-numbers transition-all duration-300 hover:border-numbers"
               >
@@ -45,7 +45,7 @@ export default async function Footer({
           )}
         </div>
         <a
-          href="https://github.com/samjamead/strava-kitty"
+          href="https://github.com/samjamead/sweat-stack"
           target="_blank"
           className="flex items-center gap-2 whitespace-nowrap rounded border px-3 py-2 font-mono text-xs transition-colors duration-300 hover:bg-blue-500/20"
         >
@@ -63,7 +63,7 @@ export default async function Footer({
             height={24}
             className="block dark:hidden"
           />
-          <p>samjamead/strava-kitty</p>
+          <p>samjamead/sweat-stack</p>
         </a>
       </div>
     </footer>
